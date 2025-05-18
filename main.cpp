@@ -9,20 +9,20 @@ using namespace std;
  * HARD-CODED TABLES
  * TODO: replace for either manual input or something like CSV
  ****/
-const vector<unsigned char> tabla1 { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 
+const vector<unsigned char> table1 { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 
     'j', 'k', 'l', 'm', 'n', 164, 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
     'x', 'y', 'z', ' ', '!', '@', '#', '$', '%', '*', '(', ')', '-', '+', '/',
     '&', ':', ';', ',', '.', 168, '?', 34, 39, '[', ']', '0', '1', '2', '3',
     '4', '5', '6', '7', '8', '9', 160, 130, 161, 162, 163, 248,
 };
 
-const vector<unsigned char> tabla2 {'9', '8', '7', '6', '5', '4', '3', '2', '1', 
+const vector<unsigned char> table2 {'9', '8', '7', '6', '5', '4', '3', '2', '1', 
     '0', '.', ',', ';', ':', ' ', 39, 34, 248, ')', '(', '*', '%', '$', '#', '!',
     '?', 168, 'z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 164, 
     'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'
 };
 
-const vector<pair<char, char>> test {
+const vector<pair<char, char>> testTable {
     {'h', '6'}, {'s','0'}, {'p', 'f'},
 };
 
@@ -45,7 +45,7 @@ void printValidSeeds(int tableSize, vector<pair<int, int>> seeds) {
 }
 
 //Implementation of the Extended Euclidean Algorithm for modular inverses
-int inverso(int a, int size) {
+int calculateInverse(int a, int size) {
     int t {0};
     int r {size};
     int newt {1};
@@ -68,10 +68,10 @@ int inverso(int a, int size) {
 }
 
 // helper funtion to call inverse() on all elements of a table
-vector<pair<int, int>> inversos(const vector<unsigned char> tabla) {
+vector<pair<int, int>> calculateTableinverses(const vector<unsigned char> tabla) {
     vector<pair<int, int>> result {};
     for (int i = 0; i < tabla.size(); ++i) {
-        int inv = inverso(i, tabla.size());
+        int inv = calculateInverse(i, tabla.size());
         if (inv != 0)
             result.push_back({i, inv});
     }
@@ -82,7 +82,7 @@ vector<pair<int, int>> inversos(const vector<unsigned char> tabla) {
  * Verifies if a seed + formula combination solves the cypher
  * using the already decrypted values
  ****/
-bool cypherTest(const vector<unsigned char> table, 
+bool testCypher(const vector<unsigned char> table, 
         const vector<pair<char, char>> testTable, 
         pair<int, int> seed,
         int formula) { 
@@ -99,14 +99,14 @@ bool cypherTest(const vector<unsigned char> table,
  * Verifies if a table can solve the cypher with any combination of
  * seed + formula
  ****/
-vector<pair<int, int>> fullCypherTest(const vector<unsigned char> table,
+vector<pair<int, int>> generateValidSeeds(const vector<unsigned char> table,
         const vector<pair<char, char>> testTable,
         vector<pair<int, int>> seedTable,
         vector<int> formulaValues) {
     vector<pair<int, int>> results {};
     for (auto x: formulaValues) {
         for (auto y : seedTable) {
-            if (cypherTest(table, testTable, y, x))
+            if (testCypher(table, testTable, y, x))
                 results.push_back({x, y.first});
         }
     }
@@ -137,13 +137,13 @@ int main() {
     cout << "Formula Y = a.X + num\n"; 
     vector<int> nums {9784562, 30018, 375839};
     
-    auto inversosTabla1 = inversos(tabla1);
-    printValidSeeds(tabla1.size(), inversosTabla1);
+    auto inversosTabla1 = calculateTableinverses(table1);
+    printValidSeeds(table1.size(), inversosTabla1);
 
-    auto inversosTabla2 = inversos(tabla2);
-    printValidSeeds(tabla2.size(), inversosTabla2);
+    auto inversosTabla2 = calculateTableinverses(table2);
+    printValidSeeds(table2.size(), inversosTabla2);
 
-    auto validSeeds = fullCypherTest(tabla1, test, inversosTabla1, nums);
+    auto validSeeds = generateValidSeeds(table1, testTable, inversosTabla1, nums);
     cout << "Formulas y Semillas que resuelven el encriptado:\n";
     if (validSeeds.empty())
         cout << "No existe semilla que resuelva el encriptado-desencriptado para la"
@@ -152,10 +152,10 @@ int main() {
         cout << "Tabla 1:\n";
         for (auto x : validSeeds) {
             cout << "num: " << x.first << " a: " << x.second << endl;
-            solveCypher(tabla2, x.first, {x.second, inverso(x.second, tabla2.size())});
+            solveCypher(table1, x.first, {x.second, calculateInverse(x.second, table1.size())});
         }
     }
-    validSeeds = fullCypherTest(tabla2, test, inversosTabla2, nums);
+    validSeeds = generateValidSeeds(table2, testTable, inversosTabla2, nums);
     if (validSeeds.empty())
         cout << "No existe semilla que resuelva el encriptado-desencriptado para la"
             << " tabla 2\n";
@@ -163,7 +163,7 @@ int main() {
         cout << "Tabla 2:\n";
         for (auto x : validSeeds) {
             cout << "num: " << x.first << " a: " << x.second << endl;
-            solveCypher(tabla2, x.first, {x.second, inverso(x.second, tabla2.size())});
+            solveCypher(table2, x.first, {x.second, calculateInverse(x.second, table2.size())});
         }
     }
     return 0;
