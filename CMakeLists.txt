@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.10)
+project(TP_Criptografia)
+add_executable(TP_Criptografia main.cpp)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
+
+if (MSVC)
+    target_compile_options(TP_Criptografia PRIVATE "/Zc:wchar_t")
+    target_compile_options(TP_Criptografia PRIVATE "/utf-8")
+endif()
